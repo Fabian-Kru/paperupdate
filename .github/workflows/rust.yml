@@ -23,4 +23,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           RUSTTARGET: ${{ matrix.target }}
-          EXTRA_FILES: "README.md LICENSE"
