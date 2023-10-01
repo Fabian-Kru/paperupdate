@@ -8,31 +8,19 @@ on:
     branches: [ "master" ]
 
 jobs:
-  create-release:
+  release:
+    name: release ${{ matrix.target }}
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: taiki-e/create-gh-release-action@v1
-        with:
-          # (required) GitHub token for creating GitHub Releases.
-          token: ${{ secrets.TOKEN }}
-
-  upload-assets:
     strategy:
+      fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-    runs-on: ${{ matrix.os }}
+        target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl]
     steps:
-      - uses: actions/checkout@v4
-      - uses: taiki-e/upload-rust-binary-action@v1
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@v1.4.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
-          # Note that glob pattern is not supported yet.
-          bin: unix
-          # (optional) On which platform to distribute the `.tar.gz` file.
-          # [default value: unix]
-          # [possible values: all, unix, windows, none]
-          tar: unix
-          # (required) GitHub token for uploading assets to GitHub Releases.
-          token: ${{ secrets.TOKEN }}
+          RUSTTARGET: ${{ matrix.target }}
+          EXTRA_FILES: "README.md LICENSE"
